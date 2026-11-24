@@ -1,0 +1,530 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced Interest Calculator</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(120deg, #74ebd5, #ACB6E5);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            max-width: 650px;
+            margin: 20px auto;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #243b67;
+        }
+
+        h3 {
+            color: #007bff;
+            margin-top: 25px;
+        }
+
+        p {
+            text-align: center;
+            color: gray;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 7px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        button {
+            padding: 12px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            background: #007bff;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .reset {
+            background: #dc3545;
+        }
+
+        .result {
+            background: #e8f5e9;
+            padding: 18px;
+            margin-top: 20px;
+            border-radius: 8px;
+            line-height: 2;
+            overflow-wrap: anywhere;
+        }
+
+        .history {
+            margin-top: 20px;
+            background: #f2f2f2;
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+        .footer {
+            text-align: center;
+            color: gray;
+            margin-top: 25px;
+            font-size: 13px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        @media(max-width: 480px) {
+            .container {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Interest Calculator</h1>
+    <p>Advanced Financial Calculator</p>
+
+    <!-- PRINCIPAL AMOUNT -->
+
+    <h3>1. Principal Amount</h3>
+
+    <label>Enter Amount (₹)</label>
+    <input type="number" id="amount"
+           placeholder="Enter principal amount" min="0">
+
+    <!-- INTEREST RATE -->
+
+    <h3>2. Interest Percentage</h3>
+
+    <label>Annual Interest Rate (%)</label>
+    <input type="number" id="rate"
+           placeholder="Enter interest rate" min="0">
+
+    <!-- TIME PERIOD -->
+
+    <h3>3. Time Period Calculator</h3>
+
+    <label>Select Start Date</label>
+    <input type="date" id="startDate">
+
+    <label>Select End Date</label>
+    <input type="date" id="endDate">
+
+    <div class="button-group">
+        <button onclick="calculateDuration()">
+            Calculate Period
+        </button>
+
+        <button class="reset" onclick="resetCalendar()">
+            Clear Dates
+        </button>
+    </div>
+
+    <div class="result" id="durationResult"
+         style="display:none;"></div>
+
+    <!-- MANUAL TIME PERIOD -->
+
+    <h3>4. Manual Time Period</h3>
+
+    <label>Enter Time</label>
+    <input type="number" id="time"
+           placeholder="Enter duration" min="0">
+
+    <label>Select Time Unit</label>
+    <select id="unit">
+        <option value="1">Years</option>
+        <option value="12">Months</option>
+        <option value="365">Days</option>
+    </select>
+
+    <!-- INTEREST TYPE -->
+
+    <h3>5. Interest Type</h3>
+
+    <select id="type" onchange="toggleCompound()">
+        <option value="simple">Simple Interest</option>
+        <option value="compound">Compound Interest</option>
+    </select>
+
+    <div id="compoundBox" style="display:none;">
+
+        <label>Compounding Frequency</label>
+
+        <select id="frequency">
+            <option value="1">Yearly</option>
+            <option value="2">Half Yearly</option>
+            <option value="4">Quarterly</option>
+            <option value="12">Monthly</option>
+        </select>
+
+    </div>
+
+    <!-- CALCULATE AND RESET -->
+
+    <div class="button-group">
+
+        <button onclick="calculateInterest()">
+            Calculate Interest
+        </button>
+
+        <button class="reset" onclick="resetAll()">
+            Reset All
+        </button>
+
+    </div>
+
+    <!-- RESULTS -->
+
+    <div class="result" id="result"
+         style="display:none;"></div>
+
+    <!-- HISTORY -->
+
+    <div class="history">
+
+        <h3>6. Calculation History</h3>
+
+        <div id="history">
+            No calculations yet.
+        </div>
+
+        <button class="reset" onclick="clearHistory()">
+            Clear History
+        </button>
+
+    </div>
+
+    <div class="footer">
+        Mini Project - Interest Calculator
+        <br>
+        Developed using HTML, CSS and JavaScript
+    </div>
+
+</div>
+
+<script>
+
+// SHOW OR HIDE COMPOUND INTEREST OPTIONS
+
+function toggleCompound() {
+
+    let type = document.getElementById("type").value;
+
+    document.getElementById("compoundBox").style.display =
+        type === "compound" ? "block" : "none";
+}
+
+
+// CALENDAR TIME PERIOD CALCULATOR
+
+function calculateDuration() {
+
+    let start = document.getElementById("startDate").value;
+    let end = document.getElementById("endDate").value;
+
+    if (!start || !end) {
+        alert("Please select both dates!");
+        return;
+    }
+
+    let s = new Date(start + "T00:00:00");
+    let e = new Date(end + "T00:00:00");
+
+    if (e < s) {
+        alert("End date must be after start date!");
+        return;
+    }
+
+    let totalDays = Math.round((e - s) / 86400000);
+
+    let years = e.getFullYear() - s.getFullYear();
+    let months = e.getMonth() - s.getMonth();
+    let days = e.getDate() - s.getDate();
+
+    if (days < 0) {
+        months--;
+
+        days += new Date(
+            e.getFullYear(),
+            e.getMonth(),
+            0
+        ).getDate();
+    }
+
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    document.getElementById("durationResult").innerHTML = `
+        <h3>Time Period Result</h3>
+
+        Years: ${years}<br>
+        Months: ${months}<br>
+        Days: ${days}<br>
+        <hr>
+        <b>Total Days: ${totalDays}</b>
+        <br>
+        <button onclick="useCalendarTime(${totalDays})">
+            Use This Period
+        </button>
+    `;
+
+    document.getElementById("durationResult").style.display = "block";
+
+}
+
+
+// USE CALENDAR DURATION IN INTEREST CALCULATOR
+
+function useCalendarTime(days) {
+
+    document.getElementById("time").value = days;
+    document.getElementById("unit").value = "365";
+
+    alert("Calendar period added to interest calculator!");
+
+}
+
+
+// CLEAR CALENDAR
+
+function resetCalendar() {
+
+    document.getElementById("startDate").value = "";
+    document.getElementById("endDate").value = "";
+
+    document.getElementById("durationResult").style.display = "none";
+
+}
+
+
+// INTEREST CALCULATOR
+
+let historyList = [];
+
+function calculateInterest() {
+
+    let amountInput = document.getElementById("amount").value;
+    let rateInput = document.getElementById("rate").value;
+    let timeInput = document.getElementById("time").value;
+
+    let p = Number(amountInput);
+    let r = Number(rateInput);
+    let time = Number(timeInput);
+
+    let unit = Number(document.getElementById("unit").value);
+
+    let type = document.getElementById("type").value;
+
+    let frequency = Number(
+        document.getElementById("frequency").value
+    );
+
+    if (
+        amountInput === "" ||
+        rateInput === "" ||
+        timeInput === "" ||
+        !Number.isFinite(p) ||
+        !Number.isFinite(r) ||
+        !Number.isFinite(time) ||
+        p <= 0 || r < 0 || time <= 0
+    ) {
+        alert("Please enter valid values!");
+        return;
+    }
+
+    let years = time / unit;
+
+    let interest;
+    let total;
+
+    // SIMPLE INTEREST
+
+    if (type === "simple") {
+
+        interest = (p * r * years) / 100;
+
+        total = p + interest;
+
+    }
+
+    // COMPOUND INTEREST
+
+    else {
+
+        total = p * Math.pow(
+            1 + r / (100 * frequency),
+            frequency * years
+        );
+
+        interest = total - p;
+
+    }
+
+    // MONTHLY AND YEARLY AVERAGE INTEREST
+
+    let monthlyInterest = interest / (years * 12);
+
+    let yearlyInterest = interest / years;
+
+    // DISPLAY RESULTS
+
+    document.getElementById("result").innerHTML = `
+
+        <h3>Calculation Results</h3>
+
+        Principal Amount: ₹${p.toFixed(2)}<br>
+
+        Interest Rate: ${r}%<br>
+
+        Time Period: ${time} ${
+            document.getElementById("unit").selectedOptions[0].text
+        }<br>
+
+        Interest Type: ${type.toUpperCase()}<br>
+
+        Total Interest: ₹${interest.toFixed(2)}<br>
+
+        Monthly Average Interest: ₹${monthlyInterest.toFixed(2)}<br>
+
+        Yearly Average Interest: ₹${yearlyInterest.toFixed(2)}<br>
+
+        <hr>
+
+        <h3>Total Amount: ₹${total.toFixed(2)}</h3>
+
+    `;
+
+    document.getElementById("result").style.display = "block";
+
+
+    // ADD TO HISTORY
+
+    historyList.unshift({
+
+        principal: p.toFixed(2),
+        rate: r,
+        interest: interest.toFixed(2),
+        total: total.toFixed(2)
+
+    });
+
+    displayHistory();
+
+}
+
+
+// DISPLAY HISTORY
+
+function displayHistory() {
+
+    let historyHTML = "";
+
+    historyList.forEach(function(item, index) {
+
+        historyHTML += `
+
+            <div>
+                <b>Calculation ${index + 1}</b><br>
+
+                Principal: ₹${item.principal}<br>
+
+                Rate: ${item.rate}%<br>
+
+                Interest: ₹${item.interest}<br>
+
+                Total Amount: ₹${item.total}
+
+                <hr>
+            </div>
+
+        `;
+
+    });
+
+    document.getElementById("history").innerHTML =
+        historyHTML || "No calculations yet.";
+
+}
+
+
+// CLEAR HISTORY
+
+function clearHistory() {
+
+    historyList = [];
+
+    displayHistory();
+
+}
+
+
+// RESET ALL INPUTS
+
+function resetAll() {
+
+    document.getElementById("amount").value = "";
+    document.getElementById("rate").value = "";
+    document.getElementById("time").value = "";
+
+    document.getElementById("unit").value = "1";
+
+    document.getElementById("type").value = "simple";
+
+    document.getElementById("frequency").value = "1";
+
+    document.getElementById("compoundBox").style.display = "none";
+
+    document.getElementById("result").style.display = "none";
+
+    resetCalendar();
+
+}
+
+</script>
+
+</body>
+</html>
